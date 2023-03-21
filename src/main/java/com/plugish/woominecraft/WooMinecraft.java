@@ -9,24 +9,31 @@
  */
 package com.plugish.woominecraft;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.plugish.woominecraft.pojo.Order;
-import com.plugish.woominecraft.pojo.WMCPojo;
-import com.plugish.woominecraft.pojo.WMCProcessedOrders;
-import okhttp3.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.plugish.woominecraft.pojo.Order;
+import com.plugish.woominecraft.pojo.WMCPojo;
+import com.plugish.woominecraft.pojo.WMCProcessedOrders;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public final class WooMinecraft extends JavaPlugin {
 
@@ -41,7 +48,7 @@ public final class WooMinecraft extends JavaPlugin {
 	 *
 	 * i.e. name:uuid:true|false
 	 */
-	private List<String> PlayersMap = new ArrayList<>();
+	//private final List<String> PlayersMap = new ArrayList<>();
 
 	@Override
 	public void onEnable() {
@@ -57,15 +64,15 @@ public final class WooMinecraft extends JavaPlugin {
 			return;
 		}
 
-		YamlConfiguration config = (YamlConfiguration) getConfig();
+		final YamlConfiguration config = (YamlConfiguration) getConfig();
 		// Save the default config.yml
 		try{
 			saveDefaultConfig();
-		} catch ( IllegalArgumentException e ) {
+		} catch ( final IllegalArgumentException e ) {
 			getLogger().warning( e.getMessage() );
 		}
 
-		String lang = getConfig().getString("lang");
+		final String lang = getConfig().getString("lang");
 		if ( lang == null ) {
 			getLogger().warning( "No default l10n set, setting to english." );
 		}
@@ -77,7 +84,7 @@ public final class WooMinecraft extends JavaPlugin {
 		getLogger().info( this.getLang( "log.com_init" ));
 
 		// Setup the scheduler
-		BukkitRunner scheduler = new BukkitRunner(instance);
+		final BukkitRunner scheduler = new BukkitRunner(instance);
 		scheduler.runTaskTimerAsynchronously( instance, config.getInt( "update_interval" ) * 20, config.getInt( "update_interval" ) * 20 );
 
 		// Log when plugin is fully enabled ( setup complete ).
@@ -100,7 +107,7 @@ public final class WooMinecraft extends JavaPlugin {
 	String getLang(String path) {
 		if ( null == this.l10n ) {
 
-			LangSetup lang = new LangSetup( instance );
+			final LangSetup lang = new LangSetup( instance );
 			l10n = lang.loadConfig();
 		}
 
@@ -134,12 +141,12 @@ public final class WooMinecraft extends JavaPlugin {
 	 */
 	public URL getSiteURL() throws Exception {
 		// Switches for pretty or non-pretty permalink support for REST urls.
-		boolean usePrettyPermalinks = this.getConfig().getBoolean( "prettyPermalinks" );
+		final boolean usePrettyPermalinks = this.getConfig().getBoolean( "prettyPermalinks" );
 		String baseUrl = getConfig().getString("url") + "/wp-json/wmc/v1/server/";
 		if ( ! usePrettyPermalinks ) {
 			baseUrl = getConfig().getString("url") + "/index.php?rest_route=/wmc/v1/server/";
 
-			String customRestUrl = this.getConfig().getString( "restBasePath" );
+			final String customRestUrl = this.getConfig().getString( "restBasePath" );
 			if ( ! customRestUrl.isEmpty() ) {
 				baseUrl = customRestUrl;
 			}
@@ -162,7 +169,7 @@ public final class WooMinecraft extends JavaPlugin {
 		this.validateConfig();
 
 		// Contact the server.
-		String pendingOrders = getPendingOrders();
+		final String pendingOrders = getPendingOrders();
 		debug_log( "Logging website reply" + NL + pendingOrders.substring( 0, Math.min(pendingOrders.length(), 64) ) + "..." );
 
 		// Server returned an empty response, bail here.
@@ -172,9 +179,9 @@ public final class WooMinecraft extends JavaPlugin {
 		}
 
 		// Create new object from JSON response.
-		Gson gson = new GsonBuilder().create();
-		WMCPojo wmcPojo = gson.fromJson( pendingOrders, WMCPojo.class );
-		List<Order> orderList = wmcPojo.getOrders();
+		final Gson gson = new GsonBuilder().create();
+		final WMCPojo wmcPojo = gson.fromJson( pendingOrders, WMCPojo.class );
+		final List<Order> orderList = wmcPojo.getOrders();
 
 		// Validate we can indeed process what we need to.
 		if ( wmcPojo.getData() != null ) {
@@ -189,9 +196,9 @@ public final class WooMinecraft extends JavaPlugin {
 		}
 
 		// foreach ORDERS in JSON feed
-		List<Integer> processedOrders = new ArrayList<>();
-		for ( Order order : orderList ) {
-			Player player = getServer().getPlayerExact( order.getPlayer() );
+		final List<Integer> processedOrders = new ArrayList<>();
+		for ( final Order order : orderList ) {
+			final Player player = getServer().getPlayerExact( order.getPlayer() );
 			if ( null == player ) {
 				debug_log( "Player was null for an order", 2 );
 				continue;
@@ -199,8 +206,8 @@ public final class WooMinecraft extends JavaPlugin {
 
 			// World whitelisting.
 			if ( getConfig().isSet( "whitelist-worlds" ) ) {
-				List<String> whitelistWorlds = getConfig().getStringList( "whitelist-worlds" );
-				String playerWorld = player.getWorld().getName();
+				final List<String> whitelistWorlds = getConfig().getStringList( "whitelist-worlds" );
+				final String playerWorld = player.getWorld().getName();
 				if ( ! whitelistWorlds.contains( playerWorld ) ) {
 					wmc_log( "Player " + player.getDisplayName() + " was in world " + playerWorld + " which is not in the white-list, no commands were ran." );
 					continue;
@@ -208,14 +215,14 @@ public final class WooMinecraft extends JavaPlugin {
 			}
 
 			// Walk over all commands and run them at the next available tick.
-			for ( String command : order.getCommands() ) {
+			for ( final String command : order.getCommands() ) {
 				//Auth player against Mojang api
-				if ( ! isPaidUser( player ) ) {
+				/*if ( ! isPaidUser( player ) ) {
 					debug_log( "User is not a paid player " + player.getDisplayName() );
 					return false;
-				}
+				}*/
 
-				BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+				final BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 				scheduler.scheduleSyncDelayedTask(instance, () -> Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), command), 20L);
 			}
 
@@ -241,18 +248,18 @@ public final class WooMinecraft extends JavaPlugin {
 	 */
 	private boolean sendProcessedOrders( List<Integer> processedOrders ) throws Exception {
 		// Build the GSON data to send.
-		Gson gson = new Gson();
-		WMCProcessedOrders wmcProcessedOrders = new WMCProcessedOrders();
+		final Gson gson = new Gson();
+		final WMCProcessedOrders wmcProcessedOrders = new WMCProcessedOrders();
 		wmcProcessedOrders.setProcessedOrders( processedOrders );
-		String orders = gson.toJson( wmcProcessedOrders );
+		final String orders = gson.toJson( wmcProcessedOrders );
 
 		// Setup the client.
-		OkHttpClient client = new OkHttpClient();
+		final OkHttpClient client = new OkHttpClient();
 
 		// Process stuffs now.
-		RequestBody body = RequestBody.create( MediaType.parse( "application/json; charset=utf-8" ), orders );
-		Request request = new Request.Builder().url( getSiteURL() ).post( body ).build();
-		Response response = client.newCall( request ).execute();
+		final RequestBody body = RequestBody.create( MediaType.parse( "application/json; charset=utf-8" ), orders );
+		final Request request = new Request.Builder().url( getSiteURL() ).post( body ).build();
+		final Response response = client.newCall( request ).execute();
 
 		// If the body is empty we can do nothing.
 		if ( null == response.body() ) {
@@ -260,7 +267,7 @@ public final class WooMinecraft extends JavaPlugin {
 		}
 
 		// Get the JSON reply from the endpoint.
-		WMCPojo wmcPojo = gson.fromJson( response.body().string(), WMCPojo.class );
+		final WMCPojo wmcPojo = gson.fromJson( response.body().string(), WMCPojo.class );
 		if ( null != wmcPojo.getCode() ) {
 			wmc_log( "Received error when trying to send post data:" + wmcPojo.getCode(), 3 );
 			throw new Exception( wmcPojo.getMessage() );
@@ -285,13 +292,13 @@ public final class WooMinecraft extends JavaPlugin {
 	 * @throws Exception On failure.
 	 */
 	private String getPendingOrders() throws Exception {
-		URL baseURL = getSiteURL();
+		final URL baseURL = getSiteURL();
 		BufferedReader input = null;
 		try {
-			Reader streamReader = new InputStreamReader( baseURL.openStream() );
+			final Reader streamReader = new InputStreamReader( baseURL.openStream() );
 			input = new BufferedReader( streamReader );
-		} catch (IOException e) { // FileNotFoundException extends IOException, so we just catch that here.
-			String key = getConfig().getString("key");
+		} catch (final IOException e) { // FileNotFoundException extends IOException, so we just catch that here.
+			final String key = getConfig().getString("key");
 			String msg = e.getMessage();
 			if ( msg.contains( key ) ) {
 				msg = msg.replace( key, "******" );
@@ -302,7 +309,7 @@ public final class WooMinecraft extends JavaPlugin {
 			return "";
 		}
 
-		StringBuilder buffer = new StringBuilder();
+		final StringBuilder buffer = new StringBuilder();
 		// Walk over each line of the response.
 		String line;
 		while ( ( line = input.readLine() ) != null ) {
@@ -356,15 +363,15 @@ public final class WooMinecraft extends JavaPlugin {
 		}
 
 		switch ( level ) {
-			case 1:
-				this.getLogger().info( message );
-				break;
-			case 2:
-				this.getLogger().warning( message );
-				break;
-			case 3:
-				this.getLogger().severe( message );
-				break;
+		case 1:
+			this.getLogger().info( message );
+			break;
+		case 2:
+			this.getLogger().warning( message );
+			break;
+		case 3:
+			this.getLogger().severe( message );
+			break;
 		}
 	}
 
@@ -374,12 +381,12 @@ public final class WooMinecraft extends JavaPlugin {
 	 * @param player A player object
 	 * @return If the user is a paid player.
 	 */
-	private boolean isPaidUser(Player player) {
-		String playerName = player.getName();
-		String playerUUID = player.getUniqueId().toString().replace( "-", "" );
-		String playerKeyBase = playerName + ':' + playerUUID + ':';
-		String validPlayerKey = playerKeyBase + true;
-		String invalidPlayerKey = playerKeyBase + false;
+	/*private boolean isPaidUser(Player player) {
+		final String playerName = player.getName();
+		final String playerUUID = player.getUniqueId().toString().replace( "-", "" );
+		final String playerKeyBase = playerName + ':' + playerUUID + ':';
+		final String validPlayerKey = playerKeyBase + true;
+		final String invalidPlayerKey = playerKeyBase + false;
 
 		// Check if server is in online mode.
 		if (Bukkit.getServer().getOnlineMode()) {
@@ -395,7 +402,7 @@ public final class WooMinecraft extends JavaPlugin {
 		// Check the base pattern, if it exists, return if the player is valid or not.
 		// Doing so should save on many if/else statements
 		if ( PlayersMap.toString().contains( playerKeyBase ) ) {
-			boolean valid = PlayersMap.contains( validPlayerKey );
+			final boolean valid = PlayersMap.contains( validPlayerKey );
 			if ( ! valid ) {
 				player.sendMessage( "Mojang Auth: Please Speak with a admin about your purchase" );
 				wmc_log("Offline mode not supported", 3);
@@ -407,37 +414,40 @@ public final class WooMinecraft extends JavaPlugin {
 		debug_log( "Player was not in the key set " + NL + PlayersMap.toString() );
 
 		try {
-			URL mojangUrl = new URL("https://api.mojang.com/users/profiles/minecraft/" +  playerName);
-			InputStream inputStream = mojangUrl.openStream();
-			Scanner scanner = new Scanner(inputStream);
-			String apiResponse = scanner.next();
+			final URL mojangUrl = new URL("https://api.mojang.com/users/profiles/minecraft/" +  playerName);
+			final InputStream inputStream = mojangUrl.openStream();
+			final Scanner scanner = new Scanner(inputStream);
+			final String apiResponse = scanner.next();
 
 			debug_log(
-				"Logging stream data:" + NL +
-				inputStream.toString() + NL +
-				apiResponse + NL +
-				playerName + NL +
-				playerUUID
-			);
+					"Logging stream data:" + NL +
+					inputStream.toString() + NL +
+					apiResponse + NL +
+					playerName + NL +
+					playerUUID
+					);
 
 			if ( ! apiResponse.contains( playerName ) ) {
 				PlayersMap.add( invalidPlayerKey );
+				scanner.close();
 				throw new IOException("Mojang Auth: PlayerName doesn't exist");
 			}
 
 			if ( ! apiResponse.contains( playerUUID ) ) {
 				//if Username exists but is using the offline uuid(doesn't match mojang records) throw IOException and add player to the list as cracked
 				PlayersMap.add( invalidPlayerKey );
+				scanner.close();
 				throw new IOException("Mojang Auth: PlayerName doesn't match uuid for account");
 			}
 
 			PlayersMap.add( validPlayerKey );
 			debug_log( PlayersMap.toString() );
+			scanner.close();
 			return true;
-		} catch ( MalformedURLException urlException ) {
+		} catch ( final MalformedURLException urlException ) {
 			debug_log("Malformed URL: " + urlException.getMessage(), 3 );
 			player.sendMessage( "Mojang API Error: Please try again later or contact an admin about your purchase." );
-		} catch ( IOException e ) {
+		} catch ( final IOException e ) {
 			debug_log( "Map is " + PlayersMap.toString() );
 			debug_log( "Message when getting URL data " + e.getMessage(), 3 );
 			player.sendMessage("Mojang Auth: Please Speak with a admin about your purchase");
