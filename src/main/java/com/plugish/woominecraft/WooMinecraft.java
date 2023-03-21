@@ -229,7 +229,7 @@ public final class WooMinecraft extends JavaPlugin {
 		wmcProcessedOrders.setProcessedOrders( processedOrders );
 		String orders = gson.toJson( wmcProcessedOrders );
 
-		// Setup the client.
+		// Set up the client.
 		OkHttpClient client = new OkHttpClient();
 
 
