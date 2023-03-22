@@ -1,9 +1,11 @@
-
-
 plugins {
     id 'java'
     id 'maven-publish'
 }
+
+group = 'com.plugish.woominecraft'
+version = '1.5.0-1.19.3'
+description = 'WooMinecraft'
 
 repositories {
     mavenCentral()
@@ -16,9 +18,6 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT")
 }
 
-group = 'com.plugish.woominecraft'
-version = '1.5.0-1.19.3'
-description = 'WooMinecraft'
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(17))
@@ -31,6 +30,7 @@ publishing {
         }
     }
 }
+
 processResources {
     filteringCharset "UTF-8"
 
@@ -41,6 +41,7 @@ processResources {
         )
     }
 }
+
 jar {
 }
 
