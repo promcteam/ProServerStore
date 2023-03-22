@@ -5,7 +5,8 @@ authors: [JerryWood, TekkitCommando, Phillmac, Jerzean, mercurialmusic]
 description: ${project.description}
 website:  http://woominecraft.com
 api-version: 1.13
-
+libraries:
+  - com.squareup.okhttp3:okhttp:3.13.1
 commands:
   woo:
     description: Check
