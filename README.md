@@ -72,6 +72,11 @@ Since this plugin is GPL and entirely opensource, we cannot be sure how you will
 You'll need the WordPress plugin for this MC Plugin to work - you can [get it here](https://github.com/WooMinecraft/woominecraft-wp).
 
 ## Changelog
+## 1.5.2
+* Build against Paper 1.20.0
+
+## 1.5.1
+* Build against Paper 1.19.4
 
 ## 1.5.0
 * Remove Player Auth due to false negatives and not allowing Bedrock/Geyser players to participate.
