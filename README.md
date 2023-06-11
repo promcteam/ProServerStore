@@ -2,7 +2,7 @@
 
 [WooMinecraft](http://woominecraft.com) is a free Minecraft Donation plugin for your server that provides a self-hosted solution where you're the boss.  By leveraging a well known eCommerce plugin on the
 WordPress side of things, we allow you to specify commands for product variations, general product commands, and resending of donations at any time.   
-![WooMinecraft Logo](https://raw.githubusercontent.com/WooMinecraft/WooMinecraft/main/src/main/resources/wmc-logo.jpg)
+![WooMinecraft Logo](https://raw.githubusercontent.com/BadWolfMC/WooMinecraft/main/src/main/resources/wmc-logo.jpg)
 
 ## Config
 Your config should look like the below section.
@@ -10,7 +10,7 @@ Your config should look like the below section.
 # Set this to the desired language file you wish to load.
 #
 # If your l10n is not available but one is that you know how to speak,consider
-# contributing to this plugin at https://github.com/WooMinecraft/WooMinecraft/
+# contributing to this plugin at https://github.com/BadWolfMC/WooMinecraft/
 lang: "en"
 
 # This is how often, in seconds, the server will contact your WordPress installation
@@ -59,10 +59,10 @@ by the console sender, and not a player.
 
 ## Contributions
 
-As with all Github projects, we encourage our users to contribute, even if it's just a small as [opening an issue](https://github.com/WooMinecraft/WooMinecraft).  Every little bit helps, especially with pre-releases
+As with all Github projects, we encourage our users to contribute, even if it's just a small as [opening an issue](https://github.com/BadWolfMC/WooMinecraft).  Every little bit helps, especially with pre-releases
 that may be unstable.
 
-Please review the [Contributors Guidelines](https://github.com/WooMinecraft/WooMinecraft/blob/master/CONTRIBUTING.md) for the best way to contribute. If you'd like to see our list of contributors, [check that out on github here](https://github.com/WooMinecraft/WooMinecraft/graphs/contributors).
+Please review the [Contributors Guidelines](https://github.com/BadWolfMC/WooMinecraft/blob/master/CONTRIBUTING.md) for the best way to contribute. If you'd like to see our list of contributors, [check that out on github here](https://github.com/BadWolfMC/WooMinecraft/graphs/contributors).
 
 ## Mojang Guidelines
 Since this plugin is GPL and entirely opensource, we cannot be sure how you will use this. However, when providing 'donation' options, you are still considered a 
