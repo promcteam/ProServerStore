@@ -73,7 +73,7 @@ You'll need the WordPress plugin for this MC Plugin to work - you can [get it he
 
 ## Changelog
 ## 1.5.2
-* Build against Paper 1.20.0
+* Build against Paper 1.20.1
 
 ## 1.5.1
 * Build against Paper 1.19.4
